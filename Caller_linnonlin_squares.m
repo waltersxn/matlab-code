@@ -1,0 +1,60 @@
+clear;
+clc;
+
+
+% first, define the independent A, using hand calculations:
+
+A = [1, 0; 1, 1; 1, 2];
+b = [0.1; 0.9; 2];
+
+% take B = A^TA, d = A^Tb 
+B = transpose(A)*A;
+bt = transpose(A)*b;
+
+% solve for x and reverse the logarithm
+x = B \ bt;
+c = [exp(x(1)); x(2)];
+c2 = [1; 1];
+
+
+%now, for nonlinear,
+% using a non-logarithmed b-vector
+bnon = [exp(0.1); exp(0.9); exp(2)];
+
+% using the gauss-newton method function
+% with the linearly computed c as our first guess
+tol = 1e-10;
+Xgn = f_gauss_newton(@g, @f_pow_jac, c, bnon, tol);
+
+Xn = f_newton_vec(@f_gradPhi, @f_gradPhi_jac, c, tol);
+
+function Y = g(X)
+    
+Y = zeros(length(X), 1);
+Y(1) = X(1);
+Y(2) = X(1)*exp(X(2));
+Y(3) = X(1)*exp(2*X(2));
+
+end
+
+function Aj = f_pow_jac(X)
+% returns A(x) with the formulas derived from the problem
+% Input: X must have length >= 2;
+
+Aj = zeros(2, 3); % started as giving the transpose, but now 
+% return it as a (3,2) matrix and take transposes later
+% populate the top row of A
+Aj(1,1) = 1;
+Aj(1,2) = exp(X(2));
+Aj(1,3) = exp(2*X(2));
+
+Aj(2,1) = 0;
+Aj(2,2) = X(1)*exp(X(2));
+Aj(2,3) = 2*X(1)*exp(2*X(2));
+
+Aj = transpose(Aj);
+end
+
+
+
+

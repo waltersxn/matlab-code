@@ -1,0 +1,27 @@
+function X = f_newton_vec(func, f_jac, X0, tol)
+    iter_max = 100;
+    X = X0;
+    % errors = (1:iter_max);
+    % make iter_max for size of array and # of iterations
+    % j_func should be a function that returns the jacobian of func
+    % tol must be a vector size same as X0 that is all tolerances
+
+    for k = 1:iter_max
+        % assign values
+        fx = func(X);
+        J = f_jac(X);
+
+        % calculate the update
+        p = J \ -fx;
+        X = X + p;
+
+        % errors(k) = abs(dx); ignore errors for this one
+        % printf('%6i %20.10f %20.10f \n', k,J,p) 
+        if norm(p) < tol * (norm(X) + 1)
+            % errors = errors(1:k); % chop errors down to only what you need
+            return
+        end
+    end
+    % if no solution
+    disp('Newton not converged, possibly incorrect solution.')
+end
